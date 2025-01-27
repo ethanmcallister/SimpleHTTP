@@ -6,9 +6,9 @@ from router import route_to_endpoint
 import socket
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind(("127.0.0.1", 8000))
+    s.bind(("127.0.0.1", 8005))
     s.listen()
-    print("listening on port 8000")
+    print("listening on port 8005")
 
     while True:
         connection, addr = s.accept()
@@ -30,4 +30,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             # res = "HTTP/1.1 200 Ok\nConnection: close\n\n<h1>Hello, world!</h1>"
 
-            connection.send(bytes(encode_response, "UTF-8"))
+            connection.send(bytes(encoded_response, "UTF-8"))
