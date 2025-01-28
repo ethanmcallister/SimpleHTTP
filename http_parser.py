@@ -23,10 +23,11 @@ def decode_request(bytes):
     lineCount = 0
 
     # parse through the request string lines
-    for line in requestStr:
+    for line in requestList:
         if lineCount == 0:
             firstLine = False
             firstLineList = line.split(" ")
+
             method = firstLineList[0]
             uri = firstLineList[1]
             version = firstLineList[2]
@@ -51,8 +52,13 @@ def encode_response(Response):
     # send the bytes to the server
 
     # convert Response object into string
-    firstLine = Response.version + " " + str(Response.code) + " " + Response.reason + "\n"
+    # status line
+    text = Response.version + " " + str(Response.code) + " " + Response.reason + "\n"
+    # headers
+    for header in Response.headers:
+        text += header + ": " + Response.headers[header] + "\n"
+    # body
+    text += '\n' + Response.body
 
     # return the string
-
-    pass
+    return text
