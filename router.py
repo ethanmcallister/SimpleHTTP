@@ -4,6 +4,7 @@
 
 from endpoints import home, about, experience, projects
 from Response import Response
+import datetime
 
 def route_to_endpoint(req):
     # route to the correct endpoint based on the request
@@ -22,8 +23,31 @@ def route_to_endpoint(req):
         response = about(req)
         response.code = 301
         response.reason = "Moved Permanently"
+
+        # headers
+        response.headers["Server"] = "SimpleHTTPServer"
+        response.headers["Date"] = datetime.datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT")
+        response.headers["Connection"] = "close"
+        response.headers["Cache-Control"] = "max-age=3"
+
         # set the `Location` header to tell the browser where to go.
         response.headers["Location"] = "/about"
+    else:
+        # 404 response
+        version = "HTTP/1.1"
+        code = 404
+        reason = "Not Found"
+        headers = {}
+
+        # headers
+        headers["Server"] = "SimpleHTTPServer"
+        headers["Date"] = datetime.datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT")
+        headers["Connection"] = "close"
+        headers["Cache-Control"] = "max-age=3"
+
+        body = "404 Not Found"
+
+        response = Response(version=version, code=code, reason=reason, headers=headers, body=body)
 
     return response
 
@@ -51,44 +75,57 @@ def static_files_middleware_factory(next):
         body = ""
 
         if '.' in req.uri:
+            file_path = req.uri[1:]
+
             try:
-                # send the ./static/<uri> file as the response body with the required headers
-                with open(f"./static/{req.uri}", "r") as static_file:
-                    content = static_file.read()
+                with open(file_path, "r") as file:
+                    content = file.read()
 
                 version = "HTTP/1.1"
                 code = 200
                 reason = "OK"
-                headers = {}
+                if (file_path.endswith(".css")):
+                    content_type = "text/css"
+                elif (file_path.endswith(".js")):
+                    content_type = "text/javascript"
+
+                headers = {
+                    "Server": "SimpleHTTPServer",
+                    "Date": datetime.datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT"),
+                    "Connection": "close",
+                    "Cache-Control": "max-age=3",
+                    "Content-Length": len(content.encode('utf-8')),
+                    "Content-Type": content_type,
+                }
+
                 body = content
 
-                response = Response(version=version, code=code, reason=reason, headers=headers, body=body)
+                res = Response(version=version, code=code, reason=reason, headers=headers, body=body)
 
                 if req.uri.endswith(".css"):
-                    response.headers["Content-Type"] = "text/css"
+                    res.headers["Content-Type"] = "text/css"
                 elif req.uri.endswith(".js"):
-                    response.headers["Content-Type"] = "text/javascript"
+                    res.headers["Content-Type"] = "text/javascript"
                 else:
-                    response.headers["Content-Type"] = "application/octet-stream"
-                return response
-            
-            # send a 404 response if the file is not found
+                    raise FileNotFoundError
+                return res
+
             except FileNotFoundError:
                 version = "HTTP/1.1"
                 code = 404
                 reason = "Not Found"
                 body = "404 Not Found"
 
-                response = Response(version=version, code=code, reason=reason, headers=headers, body=body)
+                res = Response(version=version, code=code, reason=reason, headers=headers, body=body)
 
-                return response
+                return res
 
         return next(req)
 
     return middleware
 
 def route(req):
-    middleware_chain = logging_middleware_factory(route_to_endpoint)
-    route = static_files_middleware_factory(middleware_chain)
-    response = route(req)
+    middleware_chain = logging_middleware_factory(static_files_middleware_factory(route_to_endpoint))
+    response = middleware_chain(req)
+
     return response

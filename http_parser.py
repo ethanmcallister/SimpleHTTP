@@ -6,10 +6,10 @@ from Response import Response
 def decode_request(bytes):
 
     # convert bytes into string
-    requestStr = str(bytes, "utf-8")
+    request_str = str(bytes, "utf-8")
 
     # convert the string into list of lines
-    requestList = requestStr.split("\n")
+    request_list = request_str.split("\n")
 
     # request object variables
     method = ""
@@ -18,28 +18,28 @@ def decode_request(bytes):
     headers = {}
     body = ""
 
-    isBody = False
-    firstLine = True
-    lineCount = 0
+    is_body = False
+    first_line = True
+    line_count = 0
 
     # parse through the request string lines
-    for line in requestList:
-        if lineCount == 0:
-            firstLine = False
-            firstLineList = line.split(" ")
+    for line in request_list:
+        if line_count == 0:
+            first_line = False
+            first_line_list = line.split(" ")
 
-            method = firstLineList[0]
-            uri = firstLineList[1]
-            version = firstLineList[2]
+            method = first_line_list[0]
+            uri = first_line_list[1]
+            version = first_line_list[2]
         elif line == "":
-            isBody = True
+            is_body = True
             continue
-        if isBody:
+        if is_body:
             body += line + "\n"
         elif ':' in line:
             header = line.split(":")
             headers[header[0].strip()] = header[1].strip()  
-        lineCount += 1
+        line_count += 1
         
     # create the Request object
     req = Request(method, uri, version, body, headers)
@@ -56,7 +56,7 @@ def encode_response(Response):
     text = Response.version + " " + str(Response.code) + " " + Response.reason + "\n"
     # headers
     for header in Response.headers:
-        text += header + ": " + Response.headers[header] + "\n"
+        text += header + ": " + str(Response.headers[header]) + "\n"
     # body
     text += '\n' + Response.body
 

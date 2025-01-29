@@ -6,9 +6,9 @@ from router import route
 import socket
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind(("127.0.0.1", 8003))
+    s.bind(("127.0.0.1", 8004))
     s.listen()
-    print("listening on port 8003")
+    print("listening on port 8004")
 
     while True:
         connection, addr = s.accept()
@@ -27,7 +27,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             # encode the response
             encoded_response = encode_response(response)
-
-            # res = "HTTP/1.1 200 Ok\nConnection: close\n\n<h1>Hello, world!</h1>"
 
             connection.send(bytes(encoded_response, "UTF-8"))

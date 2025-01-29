@@ -1,3 +1,40 @@
-h1 {
-    color: blue;
+body {
+    margin: 0;
+}
+
+#title-banner {
+    background-color: #00263A;
+    color: lightgrey;
+    padding: 5px;
+    margin: 0;
+    text-align: center;
+}
+
+nav {
+    margin: 10px;
+    font-size: large;
+    text-align: center;
+}
+
+nav a {
+    text-decoration: none;
+    color: #00263A;
+    padding: 5px;
+}
+
+p {
+    color: #00263A;
+    margin: 30px 10px;
+    font-size: large;
+}
+
+h3 {
+    color: #00263A;
+    margin: 30px 10px;
+}
+
+ul {
+    color: #00263A;
+    font-size: large;
+    margin: 30px 10px
 }
